@@ -13,7 +13,6 @@ Parameters:
     Type: String
     Default: ""
 
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 30
@@ -23,6 +22,7 @@ Globals:
       Variables:
         TP_ENV: !Ref Env
         OPENAI_API_KEY: !Ref OpenAIAPIKey
+        LOG_LEVEL: INFO
 
 Resources:
   TelephonePictionaryAPI:
@@ -33,36 +33,25 @@ Resources:
         AllowMethods: "'*'"
         AllowHeaders: "'*'"
         AllowOrigin: "'*'"
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:
-      CodeUri: src
-      Handler: hello_world_handler.lambda_handler
-      Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            RestApiId: !Ref TelephonePictionaryAPI
-            Path: /hello
-            Method: get
-  SubmitPromptFunction:
+  APIFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub telephone-pictionary-${Env}
       CodeUri: src
-      Handler: submit_prompt_handler.lambda_handler
-      #Policies:
-      #- S3CrudPolicy:
-      #    BucketName: !Ref SearchBucketName
-      #- DynamoDBCrudPolicy:
-      #    TableName: !Ref SearchTable
+      Handler: app.lambda_handler
       Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TelephonePictionaryAPI
+            Path: /hello
+            Method: GET
         SubmitPrompt:
           Type: Api
           Properties:
             RestApiId: !Ref TelephonePictionaryAPI
             Path: /game/{game_id}/prompt
-            Method: post
+            Method: POST
 
 Outputs:
   TelephonePictionaryAPI:
