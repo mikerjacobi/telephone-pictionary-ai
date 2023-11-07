@@ -9,9 +9,11 @@ Parameters:
   Env:
     Type: String
     Default: sandbox
+  ImageBucketName:
+    Type: String
+    Default: telephone-pictionary-staging
   OpenAIAPIKey:
     Type: String
-    Default: ""
 
 Globals:
   Function:
@@ -22,6 +24,7 @@ Globals:
       Variables:
         TP_ENV: !Ref Env
         OPENAI_API_KEY: !Ref OpenAIAPIKey
+        TP_IMAGE_BUCKET_NAME: !Ref ImageBucketName
         LOG_LEVEL: INFO
 
 Resources:
@@ -39,6 +42,9 @@ Resources:
       FunctionName: !Sub telephone-pictionary-${Env}
       CodeUri: src
       Handler: app.lambda_handler
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref ImageBucketName
       Events:
         HelloWorld:
           Type: Api
